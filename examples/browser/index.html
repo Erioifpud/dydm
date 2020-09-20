@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <link rel="icon" type="image/png" href="https://s1.ax1x.com/2020/05/07/YmZNGV.png"/>
+  <link rel="apple-touch-icon" href="https://s1.ax1x.com/2020/05/07/YmZNGV.png">
+  <link rel="shortcut icon" type="image/x-icon" href="https://s1.ax1x.com/2020/05/07/YmZNGV.png">
+  <script src="../../dist/index.js"></script>
+  <script>
+    window.onload = () => {
+      const danmu = new Danmu({
+        roomId: 301049
+      })
+
+      danmu.on('message', (payload) => {
+        if (payload.type !== 'chatmsg') {
+          return
+        }
+        const { nn, txt, bnn } = payload
+        console.log(`[${bnn}]${nn}: ${txt}`)
+      })
+
+      danmu.connect()
+    }
+  </script>
+  <title>DYDM</title>
+</head>
+<body>
+  
+</body>
+</html>
