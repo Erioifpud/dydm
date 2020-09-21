@@ -1,7 +1,7 @@
 const { toBytes, readAsInt32, readAsString } = require('./utils')
 const EventEmitter = require('./utils/event')
 const getWebSocket = require('./utils/websocket')
-const fromEntities = require('object.fromentries')
+const fromEntries = require('object.fromentries')
 
 function Danmu ({ roomId, wsApi = 'wss://danmuproxy.douyu.com:8503/', keepAlive = 40000 }) {
   this.roomId = roomId
@@ -21,18 +21,16 @@ Danmu.prototype.__serialize = function (payload) {
     return `${key}@=${escapeValue}/`
   }).join('')
 }
-
 Danmu.prototype.__deserialize = function (str) {
-  const list = str.replace(/@A/g, '@').split('/')
+  const list = str.split('/')
   if (str[str.length - 1] === '/') {
     list.pop()
   }
-  return fromEntities(list.map(str => {
-    const pair = str.split('@=')
-    if (pair.length !== 2) {
-      throw new Error('invalid argument str')
-    }
-    return pair
+  return fromEntries(list.map(str => {
+    const sepIndex = str.indexOf('@=')
+    const key = str.substring(0, sepIndex)
+    const value = str.substring(sepIndex + 2)
+    return [key, value].map(item => item.replace(/@A/g, '@').replace(/@S/g, '/'))
   }))
 }
 
