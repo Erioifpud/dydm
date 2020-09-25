@@ -73,8 +73,7 @@ Danmu.prototype.__getLoginReqPacket = function () {
 
 Danmu.prototype.__getKeepAlivePacket = function () {
   return {
-    type: 'keepalive',
-    tick: Math.round(new Date().getTime() / 1000)
+    type: 'mrkl'
   }
 }
 
