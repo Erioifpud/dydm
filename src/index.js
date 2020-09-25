@@ -22,6 +22,9 @@ Danmu.prototype.__serialize = function (payload) {
   }).join('')
 }
 Danmu.prototype.__deserialize = function (str) {
+  if (!str || !str.trim()) {
+    return
+  }
   const list = str.split('/')
   if (str[str.length - 1] === '/') {
     list.pop()
@@ -45,15 +48,19 @@ Danmu.prototype.__encode = function (payload) {
 }
 
 Danmu.prototype.__decode = function (arrayBuffer) {
-  const int8Array = new Int8Array(arrayBuffer)
-  const length = readAsInt32(int8Array)
-  const checkLength = readAsInt32(int8Array.slice(4))
-  if (length !== checkLength) {
-    throw new Error('invalid argument arrayBuffer')
+  try {
+    const int8Array = new Int8Array(arrayBuffer)
+    const length = readAsInt32(int8Array)
+    const checkLength = readAsInt32(int8Array.slice(4))
+    if (length !== checkLength) {
+      throw new Error('invalid argument arrayBuffer')
+    }
+    // const type = readAsInt16(int8Array.slice(8))
+    const bodyStr = readAsString(int8Array.slice(12))
+    return this.__deserialize(bodyStr)
+  } catch (err) {
+    this.emitter.emit('decodeError', arrayBuffer)
   }
-  // const type = readAsInt16(int8Array.slice(8))
-  const bodyStr = readAsString(int8Array.slice(12))
-  return this.__deserialize(bodyStr)
 }
 
 Danmu.prototype.__sendPacket = function (payload) {
@@ -99,7 +106,11 @@ Danmu.prototype.connect = function () {
   }
   this.wsInstance.onmessage = (event) => {
     const arrayBuffer = event.data
-    this.emitter.emit('message', this.__decode(arrayBuffer))
+    const decoded = this.__decode(arrayBuffer)
+    if (!decoded) {
+      return
+    }
+    this.emitter.emit('message', decoded)
     this.emitter.emit('rawData', arrayBuffer)
   }
   this.wsInstance.onclose = (event) => {
