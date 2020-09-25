@@ -90,23 +90,24 @@ Danmu.prototype.connect = function () {
   const WebSocket = getWebSocket()
   this.wsInstance = new WebSocket(this.wsApi)
   this.wsInstance.binaryType = 'arraybuffer'
-  this.wsInstance.onopen = () => {
+  this.wsInstance.onopen = (event) => {
     this.__sendPacket(this.__getLoginReqPacket())
     this.__sendPacket(this.__getJoinGroupPacket())
     this.timer = setInterval(() => {
       this.__sendPacket(this.__getKeepAlivePacket())
     }, this.keepAlive)
-    this.emitter.emit('connect')
+    this.emitter.emit('connect', event)
   }
   this.wsInstance.onmessage = (event) => {
     const arrayBuffer = event.data
     this.emitter.emit('message', this.__decode(arrayBuffer))
+    this.emitter.emit('rawData', arrayBuffer)
   }
-  this.wsInstance.onclose = () => {
-    this.emitter.emit('disconnect')
+  this.wsInstance.onclose = (event) => {
+    this.emitter.emit('disconnect', event)
   }
-  this.wsInstance.onerror = () => {
-    this.emitter.emit('error')
+  this.wsInstance.onerror = (event) => {
+    this.emitter.emit('error', event)
   }
 }
 
